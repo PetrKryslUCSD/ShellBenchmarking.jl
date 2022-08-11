@@ -1,7 +1,7 @@
 # ShellBenchmarking.jl
 
 Illustration of the proposed test suite from the paper "BENCHMARKING COMPUTATIONAL SHELL MODELS"
-by Krysl and Chen (2022), to be published in the Archives of Computational Methods in Engineering.
+by Krysl and Chen (2022), [published](https://link.springer.com/article/10.1007/s11831-022-09798-5) in the Archives of Computational Methods in Engineering.
 The [general flat-facet shell finite element T3FF](https://onlinelibrary.wiley.com/doi/abs/10.1002/nme.6944) is used. 
 
 A preliminary version of the manuscript is available as a [PDF](docs/Benchmarking_shell_models-07-13-2022-a.pdf).
