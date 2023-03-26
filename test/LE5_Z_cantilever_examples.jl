@@ -23,7 +23,7 @@ module LE5_Z_cantilever_examples
 using LinearAlgebra
 using FinEtools
 using FinEtoolsDeforLinear
-using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT35
+using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT3
 using FinEtoolsFlexStructures.FEMMShellT3FFModule
 using FinEtoolsFlexStructures.RotUtilModule: initial_Rfield, update_rotation_field!
 using FinEtools.MeshExportModule.VTKWrite: vtkwrite
