@@ -13,6 +13,7 @@ FinEtoolsFlexStructures = "723391e6-6814-4d1d-921c-018f691214d8"
 Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PGFPlotsX = "8314cec4-20b6-5062-9cdb-752b83310925"
+REPLHistory = "a5566ce3-012c-4b09-85b8-62131f0c3f36"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
