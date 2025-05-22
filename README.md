@@ -53,3 +53,7 @@ These are all files ending in `_examples.jl`. Feel free to browse the source cod
 
 The functionality of the shell finite element is provided by the package
 [`FinEtoolsFlexStructures`](https://github.com/PetrKryslUCSD/FinEtoolsFlexStructures.jl). The implementation may be inspected there.
+
+## News and updates
+
+- 05/21/2025: update for Julia 1.11.
