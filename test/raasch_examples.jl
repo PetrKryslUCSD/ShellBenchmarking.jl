@@ -20,6 +20,7 @@ module raasch_examples
 
 using LinearAlgebra, Statistics
 using FinEtools
+using FinEtools.AlgoBaseModule: solve_blocked!
 using FinEtoolsDeforLinear
 using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT3
 using FinEtoolsFlexStructures.FEMMShellT3FFModule
@@ -90,13 +91,12 @@ function _execute(nL = 9, nW = 1, visualize = true)
     bfes = meshboundary(fes)
     l1 = selectelem(fens, bfes, box = [97.96152422706632 97.96152422706632 -16 -16 0 20].*phun("in"), inflate = 1.0e-6)
     lfemm = FEMMBase(IntegDomain(subset(bfes, l1), GaussRule(1, 2)))
-    fi = ForceIntensity(FFlt[0, 0, q, 0, 0, 0]);
+    fi = ForceIntensity(Float64[0, 0, q, 0, 0, 0]);
     F = distribloads(lfemm, geom0, dchi, fi, 3);
     @assert  isapprox(sum(F)/phun("lbf"), 1.0)
     
     # Solve
-    U = K\F
-    scattersysvec!(dchi, U[:])
+    solve_blocked!(dchi, K, F)
     nl = selectnode(fens; box = Float64[97.96152422706632 97.96152422706632 -16 -16 0 20].*phun("in"), inflate = 1.0e-6)
     targetu =  mean(dchi.values[nl, 3])
     @info "Solution: $(round(targetu, digits=8)/phun("in")) [in],  $(round(targetu/bench_sol, digits = 4)*100)%"

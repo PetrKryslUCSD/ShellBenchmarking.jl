@@ -32,6 +32,7 @@ Simo,  J. C., D. D. Fox, and M. S. Rifai, “On a Stress Resultant Geometrically
 module twisted_beam_examples
 
 using FinEtools
+using FinEtools.AlgoBaseModule: solve_blocked!
 using FinEtoolsDeforLinear
 using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT3
 using FinEtoolsFlexStructures.FEMMShellT3FFModule
@@ -93,14 +94,13 @@ function _execute(t = 0.32, force = 1.0, dir = 3, nL = 24, nW = 2, visualize = t
     nl = selectnode(fens; box = Float64[L L 0 0 0 0], tolerance = tolerance)
     loadbdry = FESetP1(reshape(nl, 1, 1))
     lfemm = FEMMBase(IntegDomain(loadbdry, PointRule()))
-    v = FFlt[0, 0, 0, 0, 0, 0]
+    v = Float64[0, 0, 0, 0, 0, 0]
     v[dir] = force
     fi = ForceIntensity(v);
     F = distribloads(lfemm, geom0, dchi, fi, 3);
 
     # Solve
-    U = K\F
-    scattersysvec!(dchi, U[:])
+    solve_blocked!(dchi, K, F)
     result = dchi.values[nl, dir][1]
     
     # Visualization

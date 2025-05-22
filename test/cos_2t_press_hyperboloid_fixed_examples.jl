@@ -18,6 +18,7 @@ module cos_2t_press_hyperboloid_fixed_examples
 
 using LinearAlgebra
 using FinEtools
+using FinEtools.AlgoBaseModule: solve_blocked!
 using FinEtools.MeshModificationModule: distortblock
 using FinEtoolsDeforLinear
 using FinEtoolsFlexStructures
@@ -34,7 +35,7 @@ Length = 2.0 * phun("m");
 
 # The hyperboloid axis is parallel to Y
 
-function hyperbolic!(csmatout::FFltMat, XYZ::FFltMat, tangents::FFltMat, fe_label::FInt) 
+function hyperbolic!(csmatout, XYZ, tangents, feid, qpid) 
     n = cross(tangents[:, 1], tangents[:, 2]) 
     n = n/norm(n)
     # r = vec(XYZ); r[2] = 0.0
@@ -44,7 +45,7 @@ function hyperbolic!(csmatout::FFltMat, XYZ::FFltMat, tangents::FFltMat, fe_labe
     return csmatout
 end
 
-function computetrac!(forceout::FFltVec, XYZ::FFltMat, tangents::FFltMat, fe_label::FInt)
+function computetrac!(forceout, XYZ, tangents, feid, qpid)
     r = vec(XYZ); r[2] = 0.0
     r .= vec(r)/norm(vec(r))
     theta = atan(r[3], r[1])
@@ -114,12 +115,12 @@ function _execute(n = 8, thickness = Length/2/100, visualize = false, distortion
     # nl = selectnode(fens; box = Float64[R R L/2 L/2 -Inf Inf], inflate = tolerance)
     lfemm = FEMMBase(IntegDomain(fes, TriRule(3)))
     
-    fi = ForceIntensity(FFlt, 6, computetrac!);
+    fi = ForceIntensity(Float64, 6, computetrac!);
     F = distribloads(lfemm, geom0, dchi, fi, 2);
     
     # Solve
-    U = K\F
-    scattersysvec!(dchi, U[:])
+    solve_blocked!(dchi, K, F)
+    U = gathersysvec(dchi, DOF_KIND_ALL)
     strainenergy = 1/2 * U' * K * U
     @info "Strain Energy: $(round(strainenergy, digits = 9))"
 

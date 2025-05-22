@@ -32,6 +32,7 @@ module clamped_hypar_examples
 
 using LinearAlgebra
 using FinEtools
+using FinEtools.AlgoBaseModule: solve_blocked!
 using FinEtoolsDeforLinear
 using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT3
 using FinEtoolsFlexStructures.FEMMShellT3FFModule
@@ -95,13 +96,13 @@ function _execute_half(orientation = :a, tL_ratio = 1/100, n = 32, visualize = f
     # Midpoint of the free edge
     nl = selectnode(fens; box = Float64[L/2 L/2 0 0 -Inf Inf], inflate = tolerance)
     lfemm = FEMMBase(IntegDomain(fes, TriRule(1), thickness))
-    fi = ForceIntensity(FFlt[0, 0, -g, 0, 0, 0]);
+    fi = ForceIntensity(Float64[0, 0, -g, 0, 0, 0]);
     F = distribloads(lfemm, geom0, dchi, fi, 3);
     
     # Solve
-    U = K\F
-    scattersysvec!(dchi, U[:])
+    solve_blocked!(dchi, K, F)
     targetu = dchi.values[nl, 3][1]
+    U = gathersysvec(dchi, DOF_KIND_ALL)
     targetse = 1/2*U'*F*2
     @info "Deflection at A: $(round(targetu, digits = 9))"
     @info "Strain Energy (entire structure): $(targetse) "

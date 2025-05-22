@@ -14,6 +14,7 @@ module scordelis_lo_examples
 
 using LinearAlgebra
 using FinEtools
+using FinEtools.AlgoBaseModule: solve_blocked!
 using FinEtoolsDeforLinear
 using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT3
 using FinEtoolsFlexStructures.FEMMShellT3FFModule
@@ -32,7 +33,7 @@ R = 25.0 * phun("ft")
 L = 50.0 * phun("ft")
 q = 90.0 * phun("lbf/ft^2")
 
-cylindrical!(csmatout::FFltMat, XYZ::FFltMat, tangents::FFltMat, fe_label::FInt) = begin
+cylindrical!(csmatout, XYZ, tangents, fe_label, qpid) = begin
     r = vec(XYZ)
     r[2] = 0.0
     r[3] += R
@@ -97,12 +98,11 @@ function _execute(n = 8, visualize = true)
     # Midpoint of the free edge
     nl = selectnode(fens; box = Float64[sin(40 / 360 * 2 * pi) * R sin(40 / 360 * 2 * pi) * R L / 2 L / 2 -Inf Inf], inflate = tolerance)
     lfemm = FEMMBase(IntegDomain(fes, TriRule(3)))
-    fi = ForceIntensity(FFlt[0, 0, -q, 0, 0, 0])
+    fi = ForceIntensity(Float64[0, 0, -q, 0, 0, 0])
     F = distribloads(lfemm, geom0, dchi, fi, 3)
 
     # Solve
-    U = K \ F
-    scattersysvec!(dchi, U[:])
+    solve_blocked!(dchi, K, F)
     result = dchi.values[nl, 3][1]
     @info "Deflection: $(result / phun("ft")) [ft]"
 

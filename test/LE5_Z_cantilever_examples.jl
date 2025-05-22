@@ -22,13 +22,14 @@ module LE5_Z_cantilever_examples
 
 using LinearAlgebra
 using FinEtools
+using FinEtools.AlgoBaseModule: solve_blocked!
 using FinEtoolsDeforLinear
 using FinEtoolsFlexStructures.FESetShellT3Module: FESetShellT3
 using FinEtoolsFlexStructures.FEMMShellT3FFModule
 using FinEtoolsFlexStructures.RotUtilModule: initial_Rfield, update_rotation_field!
 using FinEtools.MeshExportModule.VTKWrite: vtkwrite
 
-function zcant!(csmatout::FFltMat, XYZ::FFltMat, tangents::FFltMat, fe_label::FInt)  
+function zcant!(csmatout, XYZ, tangents, fe_label, qpid)  
     r = vec(XYZ); 
     cross3!(r, view(tangents, :, 1), view(tangents, :, 2))
     csmatout[:, 3] .= vec(r)/norm(vec(r))
@@ -88,7 +89,7 @@ function _execute(input = "nle5xf3c.inp", nrefs = 0, visualize = true)
     
     applyebc!(dchi)
     numberdofs!(dchi);
-    @show dchi.nfreedofs
+    @show nfreedofs(dchi)
 
     # Assemble the system matrix
     associategeometry!(femm, geom0)
@@ -98,26 +99,25 @@ function _execute(input = "nle5xf3c.inp", nrefs = 0, visualize = true)
     # nl = selectnode(fens; box = Float64[L L d d 0 0], inflate = tolerance)
     # loadbdry1 = FESetP1(reshape(nl, 1, 1))
     # lfemm1 = FEMMBase(IntegDomain(loadbdry1, PointRule()))
-    # fi1 = ForceIntensity(FFlt[0, 0, +S, 0, 0, 0]);
+    # fi1 = ForceIntensity(Float64[0, 0, +S, 0, 0, 0]);
     # nl = selectnode(fens; box = Float64[L L -d -d 0 0], inflate = tolerance)
     # loadbdry2 = FESetP1(reshape(nl, 1, 1))
     # lfemm2 = FEMMBase(IntegDomain(loadbdry2, PointRule()))
-    # fi2 = ForceIntensity(FFlt[0, 0, -S, 0, 0, 0]);
+    # fi2 = ForceIntensity(Float64[0, 0, -S, 0, 0, 0]);
     bfes = meshboundary(fes)
     el1 = selectelem(fens, bfes, box = [L L d d -Inf Inf], inflate = tolerance)
     loadbdry1 = subset(bfes, el1)
     lfemm1 = FEMMBase(IntegDomain(loadbdry1, GaussRule(1, 2)))
-    fi1 = ForceIntensity(FFlt[0, 0, +S/d, 0, 0, 0]);
+    fi1 = ForceIntensity(Float64[0, 0, +S/d, 0, 0, 0]);
     el2 = selectelem(fens, bfes, box = [L L -d -d -Inf Inf], inflate = tolerance)
     loadbdry2 = subset(bfes, el2)
     lfemm2 = FEMMBase(IntegDomain(loadbdry2, GaussRule(1, 2)))
-    fi2 = ForceIntensity(FFlt[0, 0, -S/d, 0, 0, 0]);
+    fi2 = ForceIntensity(Float64[0, 0, -S/d, 0, 0, 0]);
     F = distribloads(lfemm1, geom0, dchi, fi1, 1) + distribloads(lfemm2, geom0, dchi, fi2, 1);
 
     # @infiltrate
     # Solve
-    U = K\F
-    scattersysvec!(dchi, U[:])
+    solve_blocked!(dchi, K, F)
     targetu =  minimum(dchi.values[:, 3]), maximum(dchi.values[:, 3])
     # @info "Target: $(round.(targetu, digits=8))"
 
