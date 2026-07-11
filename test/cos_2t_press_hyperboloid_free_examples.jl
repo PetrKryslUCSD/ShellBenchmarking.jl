@@ -60,7 +60,7 @@ end
 function _execute(n = 8, thickness = Length/2/100, visualize = false, distortion = 0.0)
     formul = FinEtoolsFlexStructures.FEMMShellT3FFModule
     tolerance = Length/n/100
-    fens, fes = distortblock(T3block, 90/360*2*pi, Length/2, n, n, distortion, distortion);
+    fens, fes = distortblock(T3block, 90/360*2*pi, Length/2, n, n);
     fens.xyz = xyz3(fens)
     for i in 1:count(fens)
         a=fens.xyz[i, 1]; y=fens.xyz[i, 2];
