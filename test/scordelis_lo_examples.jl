@@ -73,9 +73,9 @@ function _execute(n = 8, visualize = true)
     dchi = NodalField(zeros(size(fens.xyz, 1), 6))
 
     # Apply EBC's
-    # rigid diaphragm
+    # rigid diaphragm -- soft simple support
     l1 = selectnode(fens; box = Float64[-Inf Inf 0 0 -Inf Inf], inflate = tolerance)
-    for i in [1, 3, 5]
+    for i in [1, 3]
         setebc!(dchi, l1, true, i)
     end
     # plane of symmetry perpendicular to Y
