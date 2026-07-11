@@ -56,4 +56,5 @@ The functionality of the shell finite element is provided by the package
 
 ## News and updates
 
+- 07/11/2026: fix boundary conditions for Scordelis-Lo barrel vault.
 - 05/21/2025: update for Julia 1.11.
